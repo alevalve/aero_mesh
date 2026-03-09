@@ -1,0 +1,31 @@
+# --- Sensitive Information ---
+.env
+api_keys.json
+
+# --- Python Specific ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# --- Web / Node.js Specific ---
+node_modules/
+dist/
+.DS_Store
+
+# --- Project Specific Assets ---
+# We usually ignore the large generated models to keep the repo light
+files/raw_model.glb
+files/current_model.glb
+files/targets.mind
+
+# --- AR Display Specific ---
+3d_ar_app/ar_display/node_modules/
+3d_ar_app/ar_display/mind-ar-js/
+3d_ar_app/ar_display/__pycache__/
+
+# Ignore the heavy stuff inside that folder
+ar_display/mind-ar-js/node_modules/
+ar_display/mind-ar-js/dist/
