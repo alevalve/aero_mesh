@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Step 1: Capture Photo</h2>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple>
+    <button onclick="uploadImages()">Generate 3D AR</button>
+    
+    <div id="status"></div>
+
+    <script>
+        async function uploadImages() {
+            const input = document.getElementById('cameraInput');
+            const status = document.getElementById('status');
+            const formData = new FormData();
+            
+            for (const file of input.files) {
+                formData.append('images', file);
+            }
+
+            status.innerText = "Generating 3D model... Please wait (1-2 mins)";
+            
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const result = await response.json();
+            
+            if(result.status === 'success') {
+                window.location.href = "/index.html"; // Redirect to your AR view
+            } else {
+                status.innerText = "Error: " + result.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -13,7 +13,7 @@ def single_image(image_path, api_key, output_dir):
     
     url = generate_3d_from_image(image_path, api_key)
     
-    output_path = os.path.join(output_dir, "current_model.glb")
+    output_path = os.path.join(output_dir, "raw_model.glb")
     
     download_model(url, output_path)
 
@@ -25,7 +25,7 @@ def multi_image(image_path, api_key, output_dir):
     
     url = generate_3d_from_images(image_path, api_key)
     
-    output_path = os.path.join(output_dir, "current_model.glb")
+    output_path = os.path.join(output_dir, "raw_model.glb")
     
     download_model(url, output_path)
 
@@ -40,13 +40,19 @@ def call_3d_generation(images, api_key, output_dir, multiview=False):
     print("Mesh generated using Meshy")
     return generated_url 
 
+
 def download_model(url, save_path):
-
+    if not url:
+        return False
+        
     response = requests.get(url, stream=True)
-    response.raise_for_status()
-
-    with open(save_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-    print("Download finished:", save_path)
+    
+    if response.status_code == 200:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        with open(save_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        return True
+    else:
+        return False
