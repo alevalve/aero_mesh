@@ -33,12 +33,17 @@ def upload_file():
     is_multiview = len(saved_paths) > 1
     
     # Trigger the pipeline
-    success = run_ar_pipeline(image_list=saved_paths, multiview=is_multiview)
+
+    use_target_str = request.form.get('use_target', 'true')
+    use_target = use_target_str.lower() == 'true'
+
+    success = run_ar_pipeline(image_list=saved_paths, multiview=is_multiview, use_target=use_target)
 
     if success:
         return jsonify({"status": "success", "message": "3D Model Generated!"})
     else:
         return jsonify({"status": "error", "message": "Pipeline failed"}), 500
+    
 
 @app.route('/index.html')
 def serve_index():

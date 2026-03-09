@@ -1,33 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D AR Generator</title>
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; text-align: center; background: #f4f4f9; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; }
+        
+        /* Toggle Switch Styling */
+        .mode-container { display: flex; align-items: center; justify-content: center; margin: 25px 0; gap: 15px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #007bff; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        #modeLabel { font-size: 0.9rem; font-weight: bold; color: #555; width: 150px; text-align: left; }
+
+        input[type="file"] { margin: 20px 0; width: 100%; }
+        button { background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        #status { margin-top: 20px; font-size: 0.9rem; color: #666; line-height: 1.4; }
+    </style>
+</head>
 <body>
-    <h2>Step 1: Capture Photo</h2>
+
+<div class="container">
+    <h2>Capture & Generate</h2>
+    
     <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple>
+
+    <div class="mode-container">
+        <label class="switch">
+            <input type="checkbox" id="arMode" checked>
+            <span class="slider"></span>
+        </label>
+        <span id="modeLabel">Image Tracking (Marker)</span>
+    </div>
+
     <button onclick="uploadImages()">Generate 3D AR</button>
     
     <div id="status"></div>
+</div>
 
-    <script>
-        async function uploadImages() {
-            const input = document.getElementById('cameraInput');
-            const status = document.getElementById('status');
-            const formData = new FormData();
-            
-            for (const file of input.files) {
-                formData.append('images', file);
-            }
 
-            status.innerText = "Generating 3D model... Please wait (1-2 mins)";
-            
+
+<script>
+    // Update label when toggle changes
+    document.getElementById('arMode').addEventListener('change', (e) => {
+        document.getElementById('modeLabel').innerText = e.target.checked 
+            ? "Image Tracking (Marker)" 
+            : "Floating Mode (No Marker)";
+    });
+
+    async function uploadImages() {
+        const input = document.getElementById('cameraInput');
+        const status = document.getElementById('status');
+        const arMode = document.getElementById('arMode').checked;
+
+        if (input.files.length === 0) {
+            status.innerText = "Please select or take a photo first.";
+            return;
+        }
+
+        const formData = new FormData();
+        
+        // Add images
+        for (const file of input.files) {
+            formData.append('images', file);
+        }
+
+        // Add the toggle selection
+        formData.append('use_target', arMode);
+
+        status.innerHTML = "<b>Processing...</b><br>AI is building your mesh. This usually takes 60-90 seconds.";
+        
+        try {
             const response = await fetch('/upload', { method: 'POST', body: formData });
             const result = await response.json();
             
             if(result.status === 'success') {
-                window.location.href = "/index.html"; // Redirect to your AR view
+                status.innerText = "Redirecting to AR view...";
+                window.location.href = "/index.html"; 
             } else {
                 status.innerText = "Error: " + result.message;
             }
+        } catch (err) {
+            status.innerText = "Connection failed. Is the server running?";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>

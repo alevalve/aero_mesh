@@ -1,17 +1,18 @@
 import os
 from dotenv import load_dotenv
 from types import SimpleNamespace
+import time
 
 # Import your custom modules
 from generation.generation_main import call_3d_generation
 from mesh_revisions.mesh_main import main_revision
 from ar_display.feature_extractor import generate_mind_file
 
-def run_ar_pipeline(image_list=None, multiview=False):
+def run_ar_pipeline(image_list=None, multiview=False, use_target=False):
     """
     Triggers the full 3D -> AR process
     """
-    # 1. Setup Configuration
+    # Setup Configuration
     load_dotenv()
     base = "/Users/alexandervalverde/Documents/AR_App/3d_ar_app"
     
@@ -53,25 +54,36 @@ def run_ar_pipeline(image_list=None, multiview=False):
     if os.path.exists(cfg.temp_glb):
         os.remove(cfg.temp_glb)
 
-    # Step 3: Generate MindAR Targets
-    generate_mind_file(marker_image, "targets", cfg.files_dir)
+    # Generate MindAR Targets
+    if use_target:
+        generate_mind_file(marker_image, "targets", cfg.files_dir)
 
     # Step 4: Update the HTML Template
-    update_ar_html(cfg)
+    update_ar_html(cfg, use_target=use_target)
 
     print("Pipeline Complete")
     return True
 
 
-def update_ar_html(cfg):
-    """Handles the string replacement for the AR view."""
-    with open(cfg.template, 'r') as f:
+def update_ar_html(cfg, use_target=False):
+    """
+    Selects the template and performs string replacement.
+    """
+    # Choose which template to read
+    template_name = "target.html" if use_target else "no_target.html"
+    template_path = os.path.join(os.path.dirname(cfg.template), template_name)
+    
+    with open(template_path, 'r') as f:
         content = f.read()
 
-    # Relative paths for the web browser
-    content = content.replace("{{MIND_FILE}}", "files/targets.mind")
-    content = content.replace("{{IMAGE_FILE}}", "files/image.jpeg")
+    # Shared replacements
     content = content.replace("{{MODEL_FILE}}", "files/current_model.glb")
+    content = content.replace("{{TIMESTAMP}}", str(int(time.time())))
+
+    # Target-only replacements
+    if use_target:
+        content = content.replace("{{MIND_FILE}}", "files/targets.mind")
+        content = content.replace("{{IMAGE_FILE}}", "files/image_0.jpeg")
 
     with open(cfg.output_html, 'w') as f:
         f.write(content)
