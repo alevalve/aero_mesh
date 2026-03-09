@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Back Home AR - Dynamic Model</title>
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    html, body { margin:0; height:100%; overflow:hidden; background:transparent; }
+    #ui-overlay {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; color: white; font-family: sans-serif; text-align: center;
+      pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ui-overlay">Initializing AR...</div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: {{MIND_FILE}}; autoStart: true"
+    color-space="sRGB"
+    renderer="colorManagement: true; physicallyCorrectLights: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    embedded
+  >
+    <a-assets>
+      <img id="card" src="{{IMAGE_FILE}}" />
+      <a-asset-item id="avatarModel" src="{{MODEL_FILE}}"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-light type="ambient" intensity="0.8"></a-light>
+    <a-light type="directional" position="1 2 1" intensity="1"></a-light>
+
+    <a-entity id="marker" mindar-image-target="targetIndex: 0">
+      <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0" opacity="0.5"></a-plane>
+      
+      <a-gltf-model id="glbObject" 
+        rotation="0 0 0" 
+        position="0 0 0.1" 
+        scale="1 1 1" 
+        src="#avatarModel" 
+        visible="false"
+        animation="property: position; to: 0 0.05 0.1; dur: 1500; easing: easeInOutQuad; loop: true; dir: alternate">
+      </a-gltf-model>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const marker = document.getElementById('marker');
+    const glbObject = document.getElementById('glbObject');
+    const overlay = document.getElementById('ui-overlay');
+
+    // 1. Force reload the model to avoid browser caching
+    window.addEventListener('load', () => {
+        const modelAsset = document.getElementById('avatarModel');
+        const currentSrc = modelAsset.getAttribute('src');
+        modelAsset.setAttribute('src', `${currentSrc}?v=${Date.now()}`);
+        overlay.innerText = "Ready! Scan the marker.";
+    });
+
+    marker.addEventListener('targetFound', () => {
+      overlay.innerText = "Target Found!";
+      glbObject.setAttribute('visible', true);
+      
+      // Fun entrance animation
+      glbObject.setAttribute('animation__scale', {
+        property: 'scale',
+        from: '0 0 0',
+        to: '1 1 1',
+        dur: 1000,
+        easing: 'easeOutElastic'
+      });
+    });
+
+    marker.addEventListener('targetLost', () => {
+      overlay.innerText = "Searching for marker...";
+      glbObject.setAttribute('visible', false);
+    });
+  </script>
+</body>
+</html>
