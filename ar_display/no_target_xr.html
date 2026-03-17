@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WebXR Hit-Test Placement</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-ar-components@1.0.0/dist/ar-hit-test.min.js"></script>
+    
+    <style>
+        #overlay {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 100; color: white; background: rgba(0,0,0,0.6);
+            padding: 12px 24px; border-radius: 30px; font-family: sans-serif;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay">Tap the "AR" button below to start</div>
+
+    <a-scene 
+        webxr="requiredFeatures: hit-test, local-floor;"
+        renderer="colorManagement: true;"
+        cursor="rayOrigin: mouse"
+        raycaster="objects: [ar-hit-test]"
+    >
+        <a-assets>
+            <a-asset-item id="myModel" src="{{MODEL_FILE}}?v={{TS}}"></a-asset-item>
+        </a-assets>
+
+        <a-entity id="reticle" 
+                  ar-hit-test
+                  geometry="primitive: ring; radiusInner: 0.04; radiusOuter: 0.05"
+                  material="color: #007bff; shader: flat"
+                  rotation="-90 0 0" 
+                  visible="false"></a-entity>
+
+        <a-entity id="model-container" position="0 0 0" visible="false">
+            <a-gltf-model src="#myModel" scale="1 1 1"></a-gltf-model>
+        </a-entity>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        const scene = document.querySelector('a-scene');
+        const reticle = document.getElementById('reticle');
+        const model = document.getElementById('model-container');
+        const overlay = document.getElementById('overlay');
+
+        scene.addEventListener('enter-vr', () => {
+            if (scene.is('ar-mode')) {
+                overlay.innerText = "Move your phone to find the floor...";
+            }
+        });
+
+        window.addEventListener('click', () => {
+            if (reticle.getAttribute('visible')) {
+                const pos = reticle.getAttribute('position');
+                model.setAttribute('position', pos);
+                model.setAttribute('visible', true);
+                overlay.innerText = "Object Placed!";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,6 +2,11 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 import os
 import shutil
 from main_pipeline import run_ar_pipeline 
+import time
+from PIL import Image
+import numpy as np
+import json
+from computer_vision.depth import DepthEstimator
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 
@@ -45,9 +50,45 @@ def upload_file():
         return jsonify({"status": "error", "message": "Pipeline failed"}), 500
     
 
+depth_estimator = DepthEstimator()
+
+
+@app.route('/estimate-placement', methods=['POST'])
+def estimate_placement():
+
+    img = Image.open(request.files['frame']).convert("RGB")
+    rgb = np.array(img)
+    video_h, video_w = rgb.shape[:2] 
+
+    depth_estimator.update_frame(rgb)
+
+    touches = json.loads(request.form.get('touches'))
+
+    metrics = depth_estimator.metrics_from_touches(touches, display_w=video_w, display_h=video_h)
+
+    with depth_estimator._lock:
+        depth_map = depth_estimator._depth_map
+        focal_px = depth_estimator._focal_px
+        dh, dw = depth_map.shape
+        
+        pts = []
+        for t in touches:
+            scaled_x = t["x"] * dw / video_w
+            scaled_y = t["y"] * dh / video_h
+            pts.append(depth_estimator.get_3d_point(scaled_x, scaled_y, depth_map, focal_px))
+            
+    midpoint = (pts[0] + pts[1]) / 2.0
+
+    return jsonify({
+        "x": float(midpoint[0]),
+        "y": float(midpoint[1]),
+        "z": float(midpoint[2]),
+        "metrics": metrics 
+    })
+
 @app.route('/index.html')
 def serve_index():
     return send_from_directory(BASE_DIR, 'index.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5555, ssl_context='adhoc')
+    app.run(host='0.0.0.0', port=5555, use_reloader=False)

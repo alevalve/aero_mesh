@@ -1,4 +1,76 @@
-# 3D AR APP 
+# Aero Mesh
+---
 
-This project automatically turns a **2D Image** into a **3D AR Experience** using AI.
+## Overview
 
+`aero_mesh` is a 3D AR application that leverages AI to convert 2D images into interactive 3D augmented-reality experiences. The project combines a Python-based AI/mesh-generation backend with a JavaScript/HTML frontend for AR display.
+
+## Directory Structure
+
+aero_mesh/
+│
+├── ar_display/              # Frontend AR rendering layer
+│                            # Handles display of generated 3D meshes in AR
+│
+├── generation/              # AI-powered 3D mesh generation logic
+│                            # Core module that processes 2D images into 3D models
+│
+├── mesh_revisions/          # Scripts with mesh checks and improvements (smoothing, geometry revisions, decimation, resize)
+│                        
+│
+├── templates/               # HTML and model templates
+│                        
+│
+├── computer_vision/          # Depth estimation of the scene to set meshes in specific positions
+│                           
+│
+├── index.html               # Main entry point for the web/AR interface
+├── main.py                  # Primary Python script (likely CLI or server entry point)
+├── main_pipeline.py         # End-to-end pipeline orchestration (2D → 3D → AR)
+├── .gitignore               # Files and folders excluded from version control
+└── README                   # Project description and usage notes
+
+---
+
+## Key Files
+
+### `main_pipeline.py`
+The central orchestration script. Likely coordinates the full workflow: ingesting a 2D image, passing it through the generation module, applying any mesh revisions, and preparing output for AR display.
+
+### `main.py`
+A primary Python entry point. May serve as a CLI tool, a lightweight server, or a utility wrapper around the pipeline.
+
+### `index.html`
+The web frontend entry point. Combined with the heavy JavaScript usage, this is likely where the AR experience is rendered in the browser (possibly using WebXR, Three.js, or A-Frame).
+
+### `generation/`
+Contains the AI logic responsible for converting 2D images into 3D mesh data. This is the core intelligence of the project.
+
+### `ar_display/`
+Handles the augmented-reality presentation layer — taking the generated mesh and rendering it in an interactive AR environment.
+
+### `mesh_revisions/`
+Manages iterative improvements or corrections to generated meshes, likely storing intermediate or revised 3D model files.
+
+### `templates/`
+Provides reusable templates, possibly for the HTML frontend, 3D scene scaffolding, or pipeline configurations.
+
+---
+
+## Architecture Summary
+
+Input (2D Image)
+       │
+       ▼
+ generation/          ← AI mesh generation
+       │
+       ▼
+ mesh_revisions/      ← Refinement & versioning
+       │
+       ▼
+ ar_display/          ← AR rendering (JS/WebXR)
+       │
+       ▼
+ index.html           ← User-facing web interface
+
+---

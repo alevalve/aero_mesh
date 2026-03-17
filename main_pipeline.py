@@ -5,7 +5,7 @@ import time
 
 # Import your custom modules
 from generation.generation_main import call_3d_generation
-from mesh_revisions.mesh_main import main_revision
+from meshes.mesh_main import main_revision
 from ar_display.feature_extractor import generate_mind_file
 
 def run_ar_pipeline(image_list=None, multiview=False, use_target=False):
@@ -48,7 +48,7 @@ def run_ar_pipeline(image_list=None, multiview=False, use_target=False):
         return False
 
     # Step 2: Refine Mesh 
-    main_revision(cfg.temp_glb, cfg.final_glb, target_faces=5000, simplification=False)
+    main_revision(cfg.temp_glb, cfg.final_glb, target_faces=5000, simplification=False, smoothing=False, smooth_method='diffusion', smooth_iters=2)
     
     # Cleanup temp file
     if os.path.exists(cfg.temp_glb):
