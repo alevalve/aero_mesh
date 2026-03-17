@@ -43,18 +43,6 @@ A primary Python entry point. May serve as a CLI tool, a lightweight server, or 
 ### `index.html`
 The web frontend entry point. Combined with the heavy JavaScript usage, this is likely where the AR experience is rendered in the browser (possibly using WebXR, Three.js, or A-Frame).
 
-### `generation/`
-Contains the AI logic responsible for converting 2D images into 3D mesh data. This is the core intelligence of the project.
-
-### `ar_display/`
-Handles the augmented-reality presentation layer — taking the generated mesh and rendering it in an interactive AR environment.
-
-### `mesh_revisions/`
-Manages iterative improvements or corrections to generated meshes, likely storing intermediate or revised 3D model files.
-
-### `templates/`
-Provides reusable templates, possibly for the HTML frontend, 3D scene scaffolding, or pipeline configurations.
-
 ---
 
 ## Architecture Summary
