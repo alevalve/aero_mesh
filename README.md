@@ -24,6 +24,7 @@ aero_mesh/
 │
 ├── templates/               # HTML and model templates
 │
+│
 ├── computer_vision/         # Depth estimation of the scene
 │                            # to set meshes in specific positions
 │
