@@ -47,18 +47,18 @@ The web frontend entry point. Combined with the heavy JavaScript usage, this is 
 
 ## Architecture Summary
 
-Input (2D Image)
+Input (2D Image)  
        │
        ▼
- generation/          ← AI mesh generation
+ 3D mesh generation     ← AI mesh generation from 2D images using Meshy 
        │
        ▼
- mesh_revisions/      ← Refinement & versioning
+ Mesh revisions     ← Refinement & Adapting to display 
        │
        ▼
- ar_display/          ← AR rendering (JS/WebXR)
+Depth Estimation     ← Obtain the depth of the place where the mesh will be displayed
        │
        ▼
- index.html           ← User-facing web interface
+   AR Display        ← AR rendering (JS/WebXR) 
 
 ---
