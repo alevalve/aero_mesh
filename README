@@ -62,3 +62,7 @@ Depth Estimation     ← Obtain the depth of the place where the mesh will be di
    AR Display        ← AR rendering (JS/WebXR) 
 
 ---
+
+## Run program
+cd path/to/aero_mesh
+python main.py
